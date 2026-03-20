@@ -162,29 +162,6 @@ body::before {
 .sf-btn .sf-icon { font-size: 16px; }
 .sf-btn .sf-count { font-family: var(--fm); font-size: 10px; color: var(--muted); background: var(--s3); padding: 1px 6px; border-radius: 5px; }
 
-.quick-analysis-row { margin-bottom: 16px; }
-.quick-btn {
-  width: 100%; padding: 14px 20px; border-radius: 14px;
-  border: 2px dashed var(--gold); background: rgba(197,149,42,0.04);
-  font-family: var(--ff); font-weight: 700; font-size: 13px;
-  color: var(--gold); cursor: pointer; transition: all 0.2s;
-  display: flex; align-items: center; justify-content: center; gap: 10px;
-  letter-spacing: 1px;
-}
-.quick-btn:hover { background: rgba(197,149,42,0.10); border-style: solid; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(197,149,42,0.15); }
-.quick-matches { margin-top: 12px; display: grid; gap: 8px; }
-.qm-card {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 12px 16px; background: var(--s1); border: 1px solid var(--bd);
-  border-radius: 12px; cursor: pointer; transition: all 0.18s;
-  box-shadow: var(--shadow-sm);
-}
-.qm-card:hover { border-color: var(--accent); transform: translateY(-1px); box-shadow: var(--shadow-md); }
-.qm-teams { font-weight: 700; font-size: 13px; display: flex; align-items: center; gap: 8px; }
-.qm-vs { color: var(--muted); font-size: 11px; font-weight: 800; }
-.qm-meta { display: flex; align-items: center; gap: 8px; font-size: 10px; }
-.qm-league { color: var(--muted); font-weight: 600; }
-.qm-fire { font-size: 14px; }
 
 .pwa-install-hint {
   display: none; align-items: center; gap: 8px; margin-top: 8px;
@@ -255,6 +232,33 @@ body::before {
 /* ── RESULT ── */
 #result { animation: appear 0.35s ease; }
 @keyframes appear { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+
+/* ── LOADING ANIMATION v6 ── */
+.ld-live-dot { width:6px; height:6px; border-radius:50%; background:var(--accent); animation:ldPulse 1.5s infinite; }
+@keyframes ldPulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.ld-ring-outer { position:absolute; animation:ldSpin 3s linear infinite; }
+.ld-ring-inner { position:absolute; animation:ldSpin 2s linear infinite reverse; }
+@keyframes ldSpin { to{transform:rotate(360deg)} }
+.ld-flag { font-size:32px; opacity:0; transform:translateX(-20px); transition:all 0.7s cubic-bezier(0.34,1.56,0.64,1); }
+div:last-child > .ld-flag { transform:translateX(20px); }
+.ld-team-name { font-size:18px; font-weight:800; opacity:0; transition:opacity 0.5s; letter-spacing:0.5px; }
+.ld-team-meta { font-size:9px; color:var(--muted); opacity:0; transition:opacity 0.4s; margin-top:2px; }
+.ld-module { background:var(--s2); border:1px solid var(--bd); border-radius:8px; padding:10px; text-align:center; opacity:0.3; transition:all 0.5s; }
+.ld-scanline { position:absolute; top:0; height:100%; width:60px; background:linear-gradient(90deg,transparent,rgba(26,107,60,0.25),transparent); animation:ldScan 2s linear infinite; }
+@keyframes ldScan { 0%{left:-60px} 100%{left:100%} }
+@keyframes ldFlash { 0%{box-shadow:none} 50%{box-shadow:0 0 12px rgba(26,107,60,0.2)} 100%{box-shadow:none} }
+
+/* ── REVEAL SECTIONS ── */
+.rv-sec {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s cubic-bezier(0.4,0,0.2,1), transform 0.6s cubic-bezier(0.4,0,0.2,1);
+  margin-bottom: 24px;
+}
+.rv-sec.rv-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
 
 /* ── MATCH TITLE ── */
 .match-title {
@@ -1023,7 +1027,7 @@ body.dark .match-gradient::before {
 <body>
 <div class="page">
   <div class="topbar">
-    <div class="logo"><span class="logo-icon">⚽</span>SCO<span>U</span>T<span style="font-size:14px;color:var(--gold);margin-left:4px;">v8</span><span class="logo-icon" style="font-size:20px">🏆</span></div>
+    <div class="logo"><span class="logo-icon">⚽</span>SCO<span>U</span>T<span style="font-size:14px;color:var(--gold);margin-left:4px;">v8</span><span style="font-size:10px;color:var(--muted);margin-left:6px;font-weight:400;letter-spacing:1px;">by matvey</span><span class="logo-icon" style="font-size:20px">🏆</span></div>
     <div class="topbar-right">
       <div class="theme-toggle" onclick="toggleTheme()" id="themeBtn" title="Тёмная/светлая тема">☀️</div>
       <div class="level-badge" onclick="openLevel()" id="levelBadge">
@@ -1068,10 +1072,6 @@ body.dark .match-gradient::before {
       <div class="sf-btn" data-sport="hockey" onclick="setSportFilter('hockey')"><span class="sf-icon">🏒</span>ХОККЕЙ<span class="sf-count" id="sfHock">0</span></div>
       <div class="sf-btn" data-sport="basketball" onclick="setSportFilter('basketball')"><span class="sf-icon">🏀</span>НБА<span class="sf-count" id="sfBask">0</span></div>
       <div class="sf-btn" data-sport="tennis" onclick="setSportFilter('tennis')"><span class="sf-icon">🎾</span>ТЕННИС<span class="sf-count" id="sfTenn">0</span></div>
-    </div>
-    <div class="quick-analysis-row">
-      <button class="quick-btn" onclick="quickAnalysis()">🔥 ТОП МАТЧИ ДНЯ — БЫСТРЫЙ АНАЛИЗ</button>
-      <div class="quick-matches" id="quickMatches"></div>
     </div>
     <div class="pwa-install-hint" id="pwaHint">
       <span class="pwa-icon">📲</span>
@@ -3587,7 +3587,89 @@ function saveShareCard(){if(!_cur)return;const an=analyze(_cur.hk,_cur.ak),img=g
 function closeShare(){document.getElementById('sharePreview').style.display='none';}
 
 // ══════════════════ RENDER RESULT ══════════════════
-function go(){const hk=_resolved[1],ak=_resolved[2];if(!hk||!ak||DB[hk].sport!==DB[ak].sport)return;const r=document.getElementById("result"),steps=["Загрузка статистики...","Анализ команд...","Построение радара...","Формирование совета..."];r.innerHTML=`<div class="loading-wrap"><div class="loading-matchup"><span class="lm-home">${hk}</span><span class="lm-vs">VS</span><span class="lm-away">${ak}</span></div><div class="ld-steps">${steps.map((s,i)=>`<div class="ld-step" id="ls${i}"><div class="ld-dot"></div>${s}</div>`).join('')}</div></div>`;let step=0;document.getElementById("ls0").classList.add("active");const iv=setInterval(()=>{step++;if(step<steps.length){document.getElementById("ls"+(step-1)).classList.remove("active");document.getElementById("ls"+step).classList.add("active");}if(step>=steps.length){clearInterval(iv);renderResult(hk,ak);}},400);}
+function go(){const hk=_resolved[1],ak=_resolved[2];if(!hk||!ak||DB[hk].sport!==DB[ak].sport)return;
+  const h=DB[hk],a=DB[ak];
+  const r=document.getElementById("result");
+  r.innerHTML=`
+<div style="background:var(--s1);border:2px solid var(--accent);border-radius:16px;overflow:hidden;position:relative;min-height:420px;">
+<canvas id="hxC" style="position:absolute;inset:0;pointer-events:none;"></canvas>
+<div style="position:relative;z-index:1;padding:20px 24px;display:flex;flex-direction:column;align-items:center;">
+  <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;"><div class="ld-live-dot"></div><span style="font-family:var(--fm);font-size:12px;color:var(--accent);letter-spacing:2px;">SCOUT v8</span><span style="font-size:9px;color:var(--muted);">by matvey</span></div>
+  <div style="display:flex;align-items:center;gap:20px;margin:16px 0 20px;">
+    <div id="hxL" style="text-align:center;opacity:0;transform:scale(0.7);transition:all 0.8s cubic-bezier(0.34,1.56,0.64,1);">
+      <div style="width:64px;height:64px;border-radius:50%;border:1.5px solid var(--accent);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 6px;background:rgba(26,107,60,0.05);">${h.flag}</div>
+      <div style="font-size:16px;font-weight:800;color:var(--accent);">${hk}</div>
+      <div style="font-size:9px;color:var(--muted);margin-top:2px;">${h.league} · #${h.rank}</div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+      <svg width="40" height="40" viewBox="0 0 40 40"><polygon points="20,2 37,11 37,29 20,38 3,29 3,11" fill="none" stroke="var(--accent)" stroke-width="0.5" opacity="0.3"><animateTransform attributeName="transform" type="rotate" from="0 20 20" to="360 20 20" dur="8s" repeatCount="indefinite"/></polygon><polygon points="20,8 31,14 31,26 20,32 9,26 9,14" fill="none" stroke="var(--gold)" stroke-width="0.5" opacity="0.2"><animateTransform attributeName="transform" type="rotate" from="360 20 20" to="0 20 20" dur="6s" repeatCount="indefinite"/></polygon></svg>
+      <span style="font-size:9px;color:var(--bd2);font-weight:800;letter-spacing:3px;">VS</span>
+    </div>
+    <div id="hxR" style="text-align:center;opacity:0;transform:scale(0.7);transition:all 0.8s cubic-bezier(0.34,1.56,0.64,1);">
+      <div style="width:64px;height:64px;border-radius:50%;border:1.5px solid var(--orange);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 6px;background:rgba(226,101,46,0.05);">${a.flag}</div>
+      <div style="font-size:16px;font-weight:800;color:var(--orange);">${ak}</div>
+      <div style="font-size:9px;color:var(--muted);margin-top:2px;">${a.league} · #${a.rank}</div>
+    </div>
+  </div>
+  <div id="hxRing" style="position:relative;width:160px;height:160px;margin:0 auto;">
+    <svg viewBox="0 0 160 160" width="160" height="160">
+      <circle cx="80" cy="80" r="70" fill="none" stroke="var(--s3)" stroke-width="10" opacity="0.3"/>
+      <circle id="hxArc" cx="80" cy="80" r="70" fill="none" stroke="var(--accent)" stroke-width="3" stroke-dasharray="440" stroke-dashoffset="440" stroke-linecap="round" transform="rotate(-90 80 80)" style="transition:stroke-dashoffset 0.6s cubic-bezier(0.4,0,0.2,1);"/>
+    </svg>
+    <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+      <div id="hxPct" style="font-family:var(--fm);font-size:32px;font-weight:700;color:var(--accent);">0</div>
+      <div style="font-size:8px;color:var(--muted);letter-spacing:2px;margin-top:2px;">ПРОГРЕСС</div>
+    </div>
+  </div>
+  <div id="hxLog" style="width:100%;max-width:340px;margin-top:16px;font-family:var(--fm);font-size:10px;min-height:80px;"></div>
+</div>
+</div>`;
+  // Hex background
+  const cv=document.getElementById('hxC'),cx=cv.getContext('2d');
+  cv.width=cv.parentElement.offsetWidth;cv.height=cv.parentElement.offsetHeight;
+  const hexes=[];const sz=22,hh=sz*Math.sqrt(3);
+  for(let row=0;row<cv.height/hh+2;row++)for(let col=0;col<cv.width/(sz*1.5)+2;col++)hexes.push({x:col*sz*1.5,y:row*hh+(col%2?hh/2:0),pulse:0});
+  let tick=0,animOn=true;
+  function drawHex(){if(!animOn)return;cx.clearRect(0,0,cv.width,cv.height);tick++;
+    for(const hx of hexes){cx.beginPath();for(let i=0;i<6;i++){const ang=Math.PI/3*i-Math.PI/6,px=hx.x+sz*0.75*Math.cos(ang),py=hx.y+sz*0.75*Math.sin(ang);i===0?cx.moveTo(px,py):cx.lineTo(px,py);}cx.closePath();
+    if(hx.pulse>0){const dk=document.body.classList.contains('dark');cx.fillStyle=dk?'rgba(0,180,255,'+(hx.pulse*0.06)+')':'rgba(26,107,60,'+(hx.pulse*0.06)+')';cx.fill();cx.strokeStyle=dk?'rgba(0,180,255,'+(hx.pulse*0.2)+')':'rgba(26,107,60,'+(hx.pulse*0.2)+')';hx.pulse=Math.max(0,hx.pulse-0.015);}else{cx.strokeStyle='rgba(128,128,128,0.04)';}cx.lineWidth=0.5;cx.stroke();}
+    if(tick%4===0){const rh=hexes[Math.floor(Math.random()*hexes.length)];rh.pulse=1;hexes.filter(h2=>{const d=Math.hypot(h2.x-rh.x,h2.y-rh.y);return d<55&&d>0;}).forEach(h2=>{h2.pulse=Math.max(h2.pulse,0.5);});}
+    requestAnimationFrame(drawHex);}
+  drawHex();
+  // Animate teams
+  setTimeout(()=>{const l=document.getElementById('hxL');if(l){l.style.opacity='1';l.style.transform='scale(1)';}},400);
+  setTimeout(()=>{const r2=document.getElementById('hxR');if(r2){r2.style.opacity='1';r2.style.transform='scale(1)';}},700);
+  // Log + ring progress
+  const arc=document.getElementById('hxArc'),rpct=document.getElementById('hxPct'),hLog=document.getElementById('hxLog');
+  const logs=[
+    {t:"INIT",m:"Подключение к базе данных",c:"var(--muted)"},
+    {t:"LOAD",m:"Загрузка профилей команд",c:"var(--accent)"},
+    {t:"CALC",m:"Расчёт xG модели",c:"var(--green)"},
+    {t:"RADAR",m:"Построение радар-диаграммы",c:"var(--gold)"},
+    {t:"FORM",m:"Анализ формы последних 5 матчей",c:"var(--orange)"},
+    {t:"H2H",m:"Обработка личных встреч",c:"var(--blue)"},
+    {t:"PROB",m:"Расчёт вероятностей исходов",c:"var(--accent)"},
+    {t:"TOTAL",m:"Прогнозирование тотала",c:"var(--gold)"},
+    {t:"REC",m:"Генерация рекомендаций",c:"var(--green)"},
+    {t:"DONE",m:"Анализ завершён",c:"var(--accent)"},
+  ];
+  let li=0;
+  function addLog(){
+    if(li>=logs.length){setTimeout(()=>{animOn=false;renderResult(hk,ak);},600);return;}
+    const l=logs[li],p=Math.round(((li+1)/logs.length)*100);
+    if(arc)arc.style.strokeDashoffset=440-(440*(p/100));
+    if(rpct)rpct.textContent=p;
+    const line=document.createElement('div');
+    line.style.cssText='display:flex;gap:8px;align-items:center;opacity:0;transform:translateY(6px);transition:all 0.3s;margin-bottom:3px;';
+    line.innerHTML='<span style="color:var(--muted);font-size:9px;">'+new Date().toLocaleTimeString()+'</span><span style="color:'+l.c+';font-weight:600;font-size:9px;min-width:38px;">['+l.t+']</span><span style="color:var(--muted2);">'+l.m+'</span>';
+    if(hLog)hLog.appendChild(line);
+    setTimeout(()=>{line.style.opacity='1';line.style.transform='translateY(0)';},30);
+    if(hLog&&hLog.children.length>5)hLog.children[0].style.opacity='0.15';
+    li++;
+    setTimeout(addLog,650);
+  }
+  setTimeout(addLog,1000);
+}
 
 function renderResult(hk,ak){
   const an=analyze(hk,ak);_cur={hk,ak};_recs=an.recs;
@@ -3602,6 +3684,7 @@ function renderResult(hk,ak){
   const favPos=an.hp>an.ap?an.hp/2:an.hp+an.dp+(an.ap/2);
 
   document.getElementById("result").innerHTML=`
+    <div class="rv-sec" data-rv="0">
     <div class="match-gradient">
       <div class="match-title" style="border:none;margin:0;padding:0;">
         <div class="mt-team home"><div class="mt-team-name">${hk}</div><div class="mt-meta">${h.flag} ${h.league} · #${h.rank}</div></div>
@@ -3609,9 +3692,19 @@ function renderResult(hk,ak){
         <div class="mt-team away"><div class="mt-team-name">${ak}</div><div class="mt-meta">${a.flag} ${a.league} · #${a.rank}</div></div>
       </div>
     </div>
+    </div>
 
+    <div class="rv-sec" data-rv="1">
     ${waveSVG()}
+    <div class="sec-title">📝 АНАЛИЗ</div>
+    <div class="analysis-text">
+      <div class="at-title">📊 Экспертное описание</div>
+      <div class="at-verdict ${verdictClass}">${verdict}</div>
+      ${aText}
+    </div>
+    </div>
 
+    <div class="rv-sec" data-rv="2">
     <div class="sec-title">🏟 ПАСПОРТ КОМАНД</div>
     <div class="passport-row">
       <div class="passport home">
@@ -3633,7 +3726,9 @@ function renderResult(hk,ak){
         </div>
       </div>
     </div>
+    </div>
 
+    <div class="rv-sec" data-rv="3">
     <div class="sec-title">⚖️ ВЕРОЯТНОСТИ</div>
     <div class="prob-scale">
       <div class="ps-bar">
@@ -3643,7 +3738,9 @@ function renderResult(hk,ak){
       </div>
       <div class="ps-labels"><span>П1 ${hk}</span>${!noDrawSport?'<span>X</span>':''}<span>П2 ${ak}</span></div>
     </div>
+    </div>
 
+    <div class="rv-sec" data-rv="4">
     <div class="sec-title">🕸 РАДАР</div>
     <div class="radar-wrap">
       ${drawRadar(hk,ak,an)}
@@ -3652,24 +3749,19 @@ function renderResult(hk,ak){
         <div class="rl-item"><div class="rl-dot" style="background:var(--orange)"></div>${ak}</div>
       </div>
     </div>
-
-    ${waveSVG()}
-
-    <div class="sec-title">📝 АНАЛИЗ</div>
-    <div class="analysis-text">
-      <div class="at-title">📊 Экспертное описание</div>
-      <div class="at-verdict ${verdictClass}">${verdict}</div>
-      ${aText}
     </div>
 
+    <div class="rv-sec" data-rv="5">
+    ${waveSVG()}
     <div class="sec-title">📊 СТАТИСТИКА</div>
     <div class="stats-2col">
       <div class="stat-card"><div class="sc-head">⚽ ${hk}</div>${cmpBar("Победы д/в",h.homeWin,h.awayWin)}${cmpBar("Голы д/в",goalRange(h.homeGoals),goalRange(h.awayGoals))}<div style="margin-top:8px;font-size:10px;color:var(--muted);font-weight:600;">Форма:</div><div class="form-wrap" style="margin-top:4px;">${formBadge(h.form)}</div></div>
       <div class="stat-card"><div class="sc-head">${isH?'🏒':isBk?'🏀':isTn?'🎾':'⚽'} ${ak}</div>${cmpBar("Победы д/в",a.homeWin,a.awayWin)}${cmpBar("Голы д/в",goalRange(a.homeGoals),goalRange(a.awayGoals))}<div style="margin-top:8px;font-size:10px;color:var(--muted);font-weight:600;">Форма:</div><div class="form-wrap" style="margin-top:4px;">${formBadge(a.form)}</div></div>
     </div>
+    </div>
 
+    <div class="rv-sec" data-rv="6">
     ${waveSVG()}
-
     <div class="sec-title">🎯 СОВЕТ</div>
     <div class="rec-box">
       <div class="bet-pills" id="pills">${pillsHTML}</div>
@@ -3683,9 +3775,12 @@ function renderResult(hk,ak){
       </div>`:`<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--bd);"><div class="no-bank-hint">📓 Настройте план <button class="link-btn" onclick="toggleDiary()">ОТКРЫТЬ</button></div></div>`}
       <button class="share-btn" onclick="showShareCard()">📤 SHARE-КАРТОЧКА</button>
     </div>
+    </div>
   `;
-  // Init count-ups
-  setTimeout(initCountUps,100);
+  // Sequential reveal
+  const secs=document.querySelectorAll('.rv-sec');
+  secs.forEach((s,i)=>{setTimeout(()=>{s.classList.add('rv-visible');},i*800);});
+  setTimeout(initCountUps,800);
 }
 
 function updateDiaryCalc(){const i=document.getElementById('diaryCoeffInp');if(!i)return;let o=parseFloat(i.value);if(isNaN(o)||o<1.50||o>2.30){i.style.borderColor='var(--red)';return;}i.style.borderColor='var(--accent)';const s=calcDiaryStake(o),p=Math.round(s*o);const sd=document.getElementById('diaryStakeDisplay'),pd=document.getElementById('diaryPotDisplay');if(sd)sd.textContent='₽'+s.toLocaleString();if(pd)pd.textContent='₽'+p.toLocaleString();}
@@ -3737,8 +3832,6 @@ function setSportFilter(s){
   const p=ph[s]||ph.all;
   document.getElementById('sf1').placeholder=p[0];
   document.getElementById('sf2').placeholder=p[1];
-  // Hide quick matches
-  document.getElementById('quickMatches').innerHTML='';
 }
 // Count teams per sport
 (function initFilterCounts(){
@@ -3750,65 +3843,6 @@ function setSportFilter(s){
   document.getElementById('sfBask').textContent=c.basketball||0;
   document.getElementById('sfTenn').textContent=c.tennis||0;
 })();
-
-// ══════════════════ QUICK ANALYSIS ══════════════════
-function quickAnalysis(){
-  const qm=document.getElementById('quickMatches');
-  if(qm.innerHTML.trim()){qm.innerHTML='';return;}
-  // Generate 5 top matchups based on today's date
-  const today=new Date();
-  const seed=today.getFullYear()*10000+today.getMonth()*100+today.getDate();
-  const teams=Object.entries(DB);
-  // Group by sport
-  const bySport={};
-  for(const[n,d]of teams){if(!bySport[d.sport])bySport[d.sport]=[];bySport[d.sport].push({name:n,d});}
-  // Simple seeded random
-  let rng=seed;
-  const rand=()=>{rng=(rng*16807+0)%2147483647;return rng/2147483647;};
-  const matches=[];
-  const sports=Object.keys(bySport).filter(s=>_sportFilter==='all'||s===_sportFilter);
-  for(const sport of sports){
-    const pool=bySport[sport].filter(t=>t.d.rank<=10);
-    if(pool.length<2)continue;
-    // Generate 1-2 matches per sport
-    const count=sport==='football'?2:1;
-    for(let i=0;i<count&&pool.length>=2;i++){
-      pool.sort(()=>rand()-0.5);
-      const h=pool[0],a=pool[1];
-      if(h.name===a.name)continue;
-      const an=analyze(h.name,a.name);
-      const fire=an.recs[0].conf>=65?'🔥🔥🔥':an.recs[0].conf>=55?'🔥🔥':'🔥';
-      const sportIcon=sport==='football'?'⚽':sport==='hockey'?'🏒':sport==='basketball'?'🏀':'🎾';
-      matches.push({hk:h.name,ak:a.name,league:`${sportIcon} ${h.d.league}`,fire,conf:an.recs[0].conf,rec:`${an.recs[0].type}: ${an.recs[0].val}`});
-      pool.splice(0,2);
-    }
-  }
-  matches.sort((a,b)=>b.conf-a.conf);
-  qm.innerHTML=matches.slice(0,5).map(m=>`
-    <div class="qm-card" onclick="quickGo('${m.hk.replace(/'/g,"\\'")}','${m.ak.replace(/'/g,"\\'")}')">
-      <div class="qm-teams">
-        <span>${m.hk}</span><span class="qm-vs">VS</span><span>${m.ak}</span>
-      </div>
-      <div class="qm-meta">
-        <span class="qm-league">${m.league}</span>
-        <span class="qm-fire">${m.fire}</span>
-        <span style="font-weight:700;color:var(--accent);font-size:11px;">${m.rec}</span>
-      </div>
-    </div>
-  `).join('');
-}
-function quickGo(hk,ak){
-  document.getElementById('sf1').value=hk;
-  document.getElementById('sf2').value=ak;
-  _resolved={1:hk,2:ak};
-  document.getElementById('sf1').classList.add('found');
-  document.getElementById('sf2').classList.add('found');
-  document.getElementById('st1').innerHTML=`<span class="fs-ok">✓ ${DB[hk].flag} ${DB[hk].league}</span>`;
-  document.getElementById('st2').innerHTML=`<span class="fs-ok">✓ ${DB[ak].flag} ${DB[ak].league}</span>`;
-  document.getElementById('goBtn').disabled=false;
-  go();
-  document.getElementById('result').scrollIntoView({behavior:'smooth'});
-}
 
 // ══════════════════ PWA INSTALL HINT ══════════════════
 (function(){
