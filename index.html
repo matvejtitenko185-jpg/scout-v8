@@ -3519,9 +3519,9 @@ document.addEventListener('click',e=>{if(e.target===document.getElementById('lev
 // ══════════════════ STATE + RESOLVE + SEARCH ══════════════════
 let S={bank:0,goal:0,strategy:"kelly",history:[]};try{const sv=localStorage.getItem("scout3");if(sv)S={...S,...JSON.parse(sv)};}catch(e){}const save=()=>{try{localStorage.setItem("scout3",JSON.stringify(S));}catch(e){}};
 function norm(s){return s.trim().toLowerCase().replace(/ё/g,'е').replace(/й/g,'и').replace(/-/g,' ').replace(/\s+/g,' ');}
-function resolve(raw){const q=norm(raw);if(!q)return null;if(ALIAS[q])return ALIAS[q];for(const k of Object.keys(DB))if(norm(k)===q)return k;for(const k of Object.keys(DB)){const nk=norm(k);if(nk.startsWith(q)||q.startsWith(nk.split(' ')[0]))return k;}for(const[a,t]of Object.entries(ALIAS))if(a.includes(q)||q.includes(a))return t;for(const k of Object.keys(DB))if(norm(k).includes(q))return k;if(q.length>=4)for(let i=0;i<q.length;i++){const p=q.slice(0,i)+q.slice(i+1);for(const k of Object.keys(DB))if(norm(k).startsWith(p))return k;if(ALIAS[p])return ALIAS[p];}return null;}
+function resolve(raw){const q=norm(raw);if(!q)return null;const sf=typeof _sportFilter!=='undefined'?_sportFilter:'all';const ok=k=>sf==='all'||DB[k]&&DB[k].sport===sf;if(ALIAS[q]&&ok(ALIAS[q]))return ALIAS[q];for(const k of Object.keys(DB))if(norm(k)===q&&ok(k))return k;for(const k of Object.keys(DB)){const nk=norm(k);if((nk.startsWith(q)||q.startsWith(nk.split(' ')[0]))&&ok(k))return k;}for(const[a,t]of Object.entries(ALIAS))if((a.includes(q)||q.includes(a))&&ok(t))return t;for(const k of Object.keys(DB))if(norm(k).includes(q)&&ok(k))return k;/* fallback without filter */if(sf!=='all'){if(ALIAS[q])return ALIAS[q];for(const k of Object.keys(DB))if(norm(k)===q)return k;for(const k of Object.keys(DB))if(norm(k).includes(q))return k;}if(q.length>=4)for(let i=0;i<q.length;i++){const p=q.slice(0,i)+q.slice(i+1);for(const k of Object.keys(DB))if(norm(k).startsWith(p))return k;if(ALIAS[p])return ALIAS[p];}return null;}
 let _resolved={1:null,2:null};
-function onFieldInput(n){const inp=document.getElementById('sf'+n),raw=inp.value.trim(),ac=document.getElementById('ac'+n),st=document.getElementById('st'+n);if(raw.length<2){_resolved[n]=null;inp.classList.remove('found','notfound');st.innerHTML='<span class="fs-icon fs-empty">·</span>';ac.classList.remove('open');updateGoBtn();return;}const found=resolve(raw);if(found){_resolved[n]=found;inp.classList.add('found');inp.classList.remove('notfound');const d=DB[found];st.innerHTML=`<span class="fs-icon fs-ok">✓</span><span class="fs-name fs-ok">${found}</span><span class="fs-sub">${d.flag} ${d.league}</span>`;ac.classList.remove('open');updateGoBtn();return;}_resolved[n]=null;inp.classList.add('notfound');inp.classList.remove('found');st.innerHTML=`<span class="fs-icon fs-err">✕</span><span class="fs-err">Не найдено</span>`;updateGoBtn();const q=norm(raw),matches=[];for(const k of Object.keys(DB))if(norm(k).includes(q)&&matches.length<6)matches.push(k);for(const[a,t]of Object.entries(ALIAS))if(a.includes(q)&&!matches.includes(t)&&DB[t]&&matches.length<6)matches.push(t);if(!matches.length){ac.classList.remove('open');return;}ac.innerHTML=matches.map(t=>{const d=DB[t];return`<div class="ac-row" onclick="pickTeam(${n},'${t.replace(/'/g,"\\'")}')"><span>${d.sport==='football'?'⚽':'🏒'}</span><div><div class="ac-name">${t}</div><div class="ac-sub">${d.flag} ${d.league}</div></div></div>`;}).join('');ac.classList.add('open');}
+function onFieldInput(n){const inp=document.getElementById('sf'+n),raw=inp.value.trim(),ac=document.getElementById('ac'+n),st=document.getElementById('st'+n);if(raw.length<2){_resolved[n]=null;inp.classList.remove('found','notfound');st.innerHTML='<span class="fs-icon fs-empty">·</span>';ac.classList.remove('open');updateGoBtn();return;}const found=resolve(raw);if(found){_resolved[n]=found;inp.classList.add('found');inp.classList.remove('notfound');const d=DB[found];st.innerHTML=`<span class="fs-icon fs-ok">✓</span><span class="fs-name fs-ok">${found}</span><span class="fs-sub">${d.flag} ${d.league}</span>`;ac.classList.remove('open');updateGoBtn();return;}_resolved[n]=null;inp.classList.add('notfound');inp.classList.remove('found');st.innerHTML=`<span class="fs-icon fs-err">✕</span><span class="fs-err">Не найдено</span>`;updateGoBtn();const q=norm(raw),sf=typeof _sportFilter!=='undefined'?_sportFilter:'all',matches=[];for(const k of Object.keys(DB)){if(sf!=='all'&&DB[k].sport!==sf)continue;if(norm(k).includes(q)&&matches.length<6)matches.push(k);}for(const[a,t]of Object.entries(ALIAS)){if(a.includes(q)&&!matches.includes(t)&&DB[t]&&matches.length<6){if(sf!=='all'&&DB[t].sport!==sf)continue;matches.push(t);}}if(!matches.length){ac.classList.remove('open');return;}const sIcon=s=>s==='football'?'⚽':s==='hockey'?'🏒':s==='basketball'?'🏀':s==='tennis'?'🎾':'⚽';ac.innerHTML=matches.map(t=>{const d=DB[t];return`<div class="ac-row" onclick="pickTeam(${n},'${t.replace(/'/g,"\\'")}')"><span>${sIcon(d.sport)}</span><div><div class="ac-name">${t}</div><div class="ac-sub">${d.flag} ${d.league}</div></div></div>`;}).join('');ac.classList.add('open');}
 function pickTeam(n,name){document.getElementById('sf'+n).value=name;_resolved[n]=name;document.getElementById('sf'+n).classList.add('found');document.getElementById('sf'+n).classList.remove('notfound');const d=DB[name];document.getElementById('st'+n).innerHTML=`<span class="fs-icon fs-ok">✓</span><span class="fs-name fs-ok">${name}</span><span class="fs-sub">${d.flag} ${d.league}</span>`;document.getElementById('ac'+n).classList.remove('open');updateGoBtn();if(n===1)document.getElementById('sf2').focus();}
 function onFieldKey(e,n){if(e.key==='Enter'&&_resolved[1]&&_resolved[2])go();else if(e.key==='Enter'&&n===1)document.getElementById('sf2').focus();if(e.key==='Escape')document.getElementById('ac'+n).classList.remove('open');}
 function sportMismatch(){return _resolved[1]&&_resolved[2]&&DB[_resolved[1]].sport!==DB[_resolved[2]].sport;}
@@ -3750,38 +3750,6 @@ function setSportFilter(s){
   document.getElementById('sfBask').textContent=c.basketball||0;
   document.getElementById('sfTenn').textContent=c.tennis||0;
 })();
-
-// Override autocomplete to respect sport filter
-const _origOnFieldInput=onFieldInput;
-onFieldInput=function(n){
-  const el=document.getElementById('sf'+n),v=el.value.trim().toLowerCase();
-  if(v.length<1){document.getElementById('ac'+n).classList.remove('open');return;}
-  // Resolve alias
-  const aliasMatch=ALIAS[v];
-  if(aliasMatch&&DB[aliasMatch]){
-    if(_sportFilter!=='all'&&DB[aliasMatch].sport!==_sportFilter){/* skip */}
-  }
-  // Build filtered matches
-  let matches=[];
-  for(const[name,data]of Object.entries(DB)){
-    if(_sportFilter!=='all'&&data.sport!==_sportFilter)continue;
-    const nl=name.toLowerCase();
-    if(nl.startsWith(v)||nl.includes(v))matches.push({name,data});
-  }
-  // Also check aliases
-  for(const[alias,target]of Object.entries(ALIAS)){
-    if(!alias.startsWith(v)&&!alias.includes(v))continue;
-    if(!DB[target])continue;
-    if(_sportFilter!=='all'&&DB[target].sport!==_sportFilter)continue;
-    if(!matches.find(m=>m.name===target))matches.push({name:target,data:DB[target]});
-  }
-  matches.sort((a,b)=>a.data.rank-b.data.rank);
-  matches=matches.slice(0,6);
-  const dd=document.getElementById('ac'+n);
-  if(!matches.length){dd.classList.remove('open');_origOnFieldInput(n);return;}
-  dd.innerHTML=matches.map(m=>`<div class="ac-row" onmousedown="pickAC(${n},'${m.name.replace(/'/g,"\\'")}')"><span style="font-size:18px">${m.data.flag}</span><div><div class="ac-name">${m.name}</div><div class="ac-sub">${m.data.league} · #${m.data.rank}</div></div></div>`).join('');
-  dd.classList.add('open');
-};
 
 // ══════════════════ QUICK ANALYSIS ══════════════════
 function quickAnalysis(){
