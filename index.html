@@ -3569,7 +3569,7 @@ function buildAnalysisText(hk,ak,an){
   else if(a.awayCon<=1.0)t+=`Оборона крепка — ${goalRange(a.awayCon)} пропущенных. `;
   if(a.str.length)t+=a.str[0]+'. ';
   t+='</div>';
-  t+=`<div class="at-paragraph">Расчётный тотал — <span class="at-stat">${goalRange(an.expTot)} ${isH?'шайб':isB?'очков (прогноз одной стороны)':isT?'геймов':'голов'}</span>. `;
+  t+=`<div class="at-paragraph">Расчётный тотал — <span class="at-stat">${goalRange(an.expTot)} ${isH?'шайб':isBk?'очков (прогноз одной стороны)':isTn?'геймов':'голов'}</span>. `;
   t+=parseFloat(an.expTot)>3?'Потенциально результативный матч. ':'Встреча может быть закрытой. ';
   if(h.weak.length)t+=`Слабость хозяев: ${h.weak[0].toLowerCase()}. `;
   if(a.weak.length)t+=`Слабость гостей: ${a.weak[0].toLowerCase()}. `;
@@ -3665,7 +3665,7 @@ function renderResult(hk,ak){
     <div class="sec-title">📊 СТАТИСТИКА</div>
     <div class="stats-2col">
       <div class="stat-card"><div class="sc-head">⚽ ${hk}</div>${cmpBar("Победы д/в",h.homeWin,h.awayWin)}${cmpBar("Голы д/в",goalRange(h.homeGoals),goalRange(h.awayGoals))}<div style="margin-top:8px;font-size:10px;color:var(--muted);font-weight:600;">Форма:</div><div class="form-wrap" style="margin-top:4px;">${formBadge(h.form)}</div></div>
-      <div class="stat-card"><div class="sc-head">${isH?'🏒':isB?'🏀':isT?'🎾':'⚽'} ${ak}</div>${cmpBar("Победы д/в",a.homeWin,a.awayWin)}${cmpBar("Голы д/в",goalRange(a.homeGoals),goalRange(a.awayGoals))}<div style="margin-top:8px;font-size:10px;color:var(--muted);font-weight:600;">Форма:</div><div class="form-wrap" style="margin-top:4px;">${formBadge(a.form)}</div></div>
+      <div class="stat-card"><div class="sc-head">${isH?'🏒':isBk?'🏀':isTn?'🎾':'⚽'} ${ak}</div>${cmpBar("Победы д/в",a.homeWin,a.awayWin)}${cmpBar("Голы д/в",goalRange(a.homeGoals),goalRange(a.awayGoals))}<div style="margin-top:8px;font-size:10px;color:var(--muted);font-weight:600;">Форма:</div><div class="form-wrap" style="margin-top:4px;">${formBadge(a.form)}</div></div>
     </div>
 
     ${waveSVG()}
