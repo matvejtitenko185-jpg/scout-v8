@@ -1025,9 +1025,7 @@ body.dark .match-gradient::before {
 </style>
 </head>
 <body class="scout-locked">
-<!-- ═══════════════════════════════════════════════════════
-     SCOUT AUTH SYSTEM — Вставить СРАЗУ ПОСЛЕ <body class="scout-locked">
-     ═══════════════════════════════════════════════════════ -->
+<!-- ═══ SCOUT AUTH ═══ -->
 <style>
 body.scout-locked .page,
 body.scout-locked .sticky-bet,
@@ -1043,8 +1041,10 @@ body.scout-locked::before { display: none !important; }
 }
 .auth-screen.bye { opacity: 0; transform: scale(1.08); pointer-events: none; }
 
-.auth-box {
-  text-align: center; max-width: 340px; width: 100%; padding: 24px;
+.auth-box { text-align: center; max-width: 340px; width: 100%; padding: 24px; }
+.auth-top-row {
+  display: flex; align-items: center; justify-content: center; gap: 14px;
+  margin-bottom: 16px;
 }
 .auth-logo {
   font-family: var(--ff); font-weight: 900;
@@ -1052,7 +1052,15 @@ body.scout-locked::before { display: none !important; }
   color: var(--accent); margin-bottom: 6px; line-height: 1.2;
 }
 .auth-logo span { color: var(--gold); }
-.auth-icon { font-size: 48px; margin-bottom: 16px; }
+.auth-icon { font-size: 48px; }
+.auth-theme-btn {
+  width: 40px; height: 40px; border-radius: 12px;
+  background: var(--s1); border: 2px solid var(--bd);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 20px; transition: all 0.2s;
+  box-shadow: var(--shadow-sm); flex-shrink: 0;
+}
+.auth-theme-btn:hover { border-color: var(--accent); transform: scale(1.1); }
 .auth-sub {
   font-size: 13px; color: var(--muted); margin-bottom: 32px;
   font-weight: 500; letter-spacing: 0.5px;
@@ -1064,36 +1072,17 @@ body.scout-locked::before { display: none !important; }
   background: var(--s1); font-family: var(--fm);
   font-size: 30px; font-weight: 700; color: var(--txt);
   text-align: center; outline: none;
-  transition: all 0.2s;
-  box-shadow: var(--shadow-sm);
+  transition: all 0.2s; box-shadow: var(--shadow-sm);
   -webkit-appearance: none;
 }
-.auth-pin:focus {
-  border-color: var(--accent);
-  box-shadow: var(--shadow-glow);
-  transform: translateY(-3px);
-}
+.auth-pin:focus { border-color: var(--accent); box-shadow: var(--shadow-glow); transform: translateY(-3px); }
 .auth-pin.filled { border-color: var(--accent); background: rgba(26,107,60,0.04); }
-.auth-pin.err {
-  border-color: var(--red);
-  animation: authShake 0.45s ease;
-  background: rgba(201,53,69,0.04);
-}
-.auth-pin.ok {
-  border-color: var(--green);
-  background: rgba(26,138,74,0.1);
-  transform: translateY(-3px);
-}
-.auth-msg {
-  font-size: 12px; color: var(--muted); min-height: 20px;
-  font-weight: 600; transition: color 0.2s; letter-spacing: 0.5px;
-}
+.auth-pin.err { border-color: var(--red); animation: authShake 0.45s ease; background: rgba(201,53,69,0.04); }
+.auth-pin.ok { border-color: var(--green); background: rgba(26,138,74,0.1); transform: translateY(-3px); }
+.auth-msg { font-size: 12px; color: var(--muted); min-height: 20px; font-weight: 600; transition: color 0.2s; letter-spacing: 0.5px; }
 .auth-msg.err { color: var(--red); }
 .auth-msg.ok { color: var(--green); }
-.auth-footer {
-  margin-top: 40px; font-size: 10px; color: var(--bd2);
-  letter-spacing: 1px; text-transform: uppercase; font-weight: 600;
-}
+.auth-footer { margin-top: 40px; font-size: 10px; color: var(--bd2); letter-spacing: 1px; text-transform: uppercase; font-weight: 600; }
 
 @keyframes authShake {
   0%, 100% { transform: translateX(0); }
@@ -1103,16 +1092,20 @@ body.scout-locked::before { display: none !important; }
   80% { transform: translateX(5px); }
 }
 
-/* Dark theme support */
 body.dark .auth-pin:focus { box-shadow: 0 0 30px rgba(0,180,255,0.2); }
 body.dark .auth-pin.ok { background: rgba(0,224,136,0.1); border-color: #00e088; }
 body.dark .auth-pin.err { background: rgba(255,68,102,0.08); }
 body.dark .auth-pin.filled { border-color: #00b8ff; background: rgba(0,180,255,0.05); }
+body.dark .auth-theme-btn { border-color: #122244; background: #081020; }
+body.dark .auth-theme-btn:hover { border-color: #00b8ff; }
 </style>
 
 <div class="auth-screen" id="authScreen">
   <div class="auth-box">
-    <div class="auth-icon">🔒</div>
+    <div class="auth-top-row">
+      <div class="auth-icon">🔒</div>
+      <div class="auth-theme-btn" id="authThemeBtn" onclick="(function(){document.body.classList.toggle('dark');var d=document.body.classList.contains('dark');document.getElementById('authThemeBtn').textContent=d?'🌙':'☀️';localStorage.setItem('scout_theme',d?'dark':'light');var tb=document.getElementById('themeBtn');if(tb)tb.textContent=d?'🌙':'☀️';})()">☀️</div>
+    </div>
     <div class="auth-logo">SCO<span>U</span>T</div>
     <div class="auth-sub">Введите код доступа</div>
     <div class="auth-pins">
@@ -1128,85 +1121,50 @@ body.dark .auth-pin.filled { border-color: #00b8ff; background: rgba(0,180,255,0
 
 <script>
 (function(){
-  var CODE='8269', KEY='scout_auth_ok';
-  // Already authenticated — remove overlay, unlock page
-  if(localStorage.getItem(KEY)==='1'){
-    var s=document.getElementById('authScreen');
-    if(s)s.remove();
-    document.body.classList.remove('scout-locked');
-    return;
-  }
-  // PIN inputs
+  var CODE='8269';
+  // Apply saved theme
+  var t=localStorage.getItem('scout_theme');
+  if(t==='dark'){document.body.classList.add('dark');var ab=document.getElementById('authThemeBtn');if(ab)ab.textContent='\uD83C\uDF19';}
+  // PIN logic
   var pp=[0,1,2,3].map(function(i){return document.getElementById('ap'+i)});
   pp.forEach(function(p,i){
     p.addEventListener('input',function(){
       p.value=p.value.replace(/\D/g,'').slice(-1);
-      if(p.value){
-        p.classList.add('filled');
-        if(i<3)pp[i+1].focus();
-      } else {
-        p.classList.remove('filled');
-      }
+      if(p.value){p.classList.add('filled');if(i<3)pp[i+1].focus();}else{p.classList.remove('filled');}
       tryCheck();
     });
     p.addEventListener('keydown',function(e){
-      if(e.key==='Backspace'&&!p.value&&i>0){
-        pp[i-1].focus();
-        pp[i-1].value='';
-        pp[i-1].classList.remove('filled');
-      }
+      if(e.key==='Backspace'&&!p.value&&i>0){pp[i-1].focus();pp[i-1].value='';pp[i-1].classList.remove('filled');}
     });
     p.addEventListener('paste',function(e){
       e.preventDefault();
       var d=(e.clipboardData.getData('text')||'').replace(/\D/g,'').slice(0,4);
-      d.split('').forEach(function(c,j){
-        if(pp[j]){pp[j].value=c;pp[j].classList.add('filled');}
-      });
+      d.split('').forEach(function(c,j){if(pp[j]){pp[j].value=c;pp[j].classList.add('filled');}});
       if(d.length>0)pp[Math.min(d.length,3)].focus();
       tryCheck();
     });
-    // Focus style for mobile
     p.addEventListener('focus',function(){p.select();});
   });
-
   function tryCheck(){
     var c=pp.map(function(p){return p.value}).join('');
     if(c.length<4)return;
     var msg=document.getElementById('authMsg');
     if(c===CODE){
-      // Success
       pp.forEach(function(p){p.classList.remove('filled','err');p.classList.add('ok');p.disabled=true;});
       msg.textContent='\u2713 Добро пожаловать!';
       msg.className='auth-msg ok';
-      localStorage.setItem(KEY,'1');
       setTimeout(function(){
         document.getElementById('authScreen').classList.add('bye');
         document.body.classList.remove('scout-locked');
-        setTimeout(function(){
-          var sc=document.getElementById('authScreen');
-          if(sc)sc.remove();
-        },600);
+        setTimeout(function(){var sc=document.getElementById('authScreen');if(sc)sc.remove();},600);
       },500);
     } else {
-      // Wrong code
       pp.forEach(function(p){p.classList.remove('filled');p.classList.add('err');p.value='';});
-      msg.textContent='Неверный код';
-      msg.className='auth-msg err';
-      setTimeout(function(){
-        pp.forEach(function(p){p.classList.remove('err')});
-        msg.textContent='4 цифры';
-        msg.className='auth-msg';
-        pp[0].focus();
-      },1000);
+      msg.textContent='Неверный код';msg.className='auth-msg err';
+      setTimeout(function(){pp.forEach(function(p){p.classList.remove('err')});msg.textContent='4 цифры';msg.className='auth-msg';pp[0].focus();},1000);
     }
   }
-  // Auto-focus first pin + dark theme init for auth screen
-  setTimeout(function(){
-    pp[0].focus();
-    // Apply dark theme if saved
-    var t=localStorage.getItem('scout_theme');
-    if(t==='dark')document.body.classList.add('dark');
-  },100);
+  setTimeout(function(){pp[0].focus();},100);
 })();
 </script>
 <!-- ═══ /SCOUT AUTH ═══ -->
